@@ -8,8 +8,7 @@ q2 :: IO Int
 q2 = sum . fmap (pointFromRound.convertToRound) <$> readInputFile
 
 readInputFile :: IO [[String]]
-readInputFile = do  
-        let list = []
+readInputFile = do
         handle <- openFile "input.txt" ReadMode
         contents <-  (fmap lines (hGetContents handle))
         return (fmap words contents)
