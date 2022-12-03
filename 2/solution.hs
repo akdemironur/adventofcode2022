@@ -1,5 +1,4 @@
-import System.IO  
-import Control.Monad
+import System.IO
 
 q1 :: IO Int
 q1 = sum . fmap pointFromRound <$> readInputFile
