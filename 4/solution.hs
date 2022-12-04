@@ -12,15 +12,14 @@ readInputFile = do
         contents <- (fmap parsePairs) . lines <$> (hGetContents handle)
         return contents
 
-parsePairs :: String -> ((Int, Int), (Int, Int))
-parsePairs str = ((read fe1, read fe2), (read se1, read se2))
-    where
-        (firstElf, secondElf) = splitStrAtChar str ','
-        (fe1, fe2) = splitStrAtChar firstElf '-'
-        (se1, se2) = splitStrAtChar secondElf '-'
+mapTuple :: (a -> b) -> (a, a) -> (b, b)
+mapTuple f (a, b) = (f a, f b)
 
-splitStrAtChar :: String -> Char -> (String, String)
-splitStrAtChar str c = (firstPart, secondPart)
+parsePairs :: String -> ((Int, Int), (Int, Int))
+parsePairs = mapTuple ((mapTuple read) . (splitStrAtChar '-')) . (splitStrAtChar ',')
+
+splitStrAtChar :: Char -> String -> (String, String)
+splitStrAtChar c str = (firstPart, secondPart)
     where
         firstPart = takeWhile ((/=) c) str
         secondPart = tail $ dropWhile ((/=) c) str
