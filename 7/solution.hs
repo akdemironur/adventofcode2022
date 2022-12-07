@@ -40,8 +40,7 @@ parsedFS = fst . (foldl parseLine initialState)  <$> inputs
 calcSizeFS :: FileSystem -> Int
 calcSizeFS (File _ size) = size
 calcSizeFS (Dir _ _ []) = 0
-calcSizeFS (Dir _ Nothing content) = sum $ fmap calcSizeFS content
-calcSizeFS (Dir _ (Just size) _) = size
+calcSizeFS (Dir _ _ content) = sum $ fmap calcSizeFS content
 
 writeSizeOfDirs :: FileSystem -> FileSystem
 writeSizeOfDirs (File a b) = File a b
@@ -64,7 +63,9 @@ findSmallestLarger threshold currentMin (Dir _ (Just size) contents) = if size >
                                                                   then minimum (fmap (findSmallestLarger threshold size) contents) 
                                                                   else minimum (fmap (findSmallestLarger threshold currentMin) contents) 
 getSize :: FileSystem -> Int
-getSize = calcSizeFS
+getSize (File _ size) = size
+getSize (Dir _ (Just size) _) = size
+getSize dir@(Dir _ Nothing _) = calcSizeFS dir
 
 updateSize :: Int
 updateSize = 30000000
