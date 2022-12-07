@@ -1,8 +1,29 @@
 data FileSystem = Dir String (Maybe Int) [FileSystem] | File String Int deriving (Eq, Show)
 
-inputs = fmap lines (readFile "input.txt")
+type State = (FileSystem, [String])
 
+q1 :: IO Int
+q1 = (sumOfDirsUnderThreshold 100000) <$> finalFS
+q2 :: IO Int
+q2 = (\fs -> findSmallestLarger (updateSize - totalSize + (getSize fs)) (getSize fs) fs) <$> finalFS
+
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
+updateSize :: Int
+updateSize = 30000000
+
+totalSize :: Int
+totalSize = 70000000
+
+filesystem :: FileSystem
 filesystem = Dir "/" Nothing []
+
+initialState :: State
+initialState = (filesystem, [])
+
+inputs :: IO [String]
+inputs = fmap lines (readFile "input.txt")
 
 insertToFileSystem :: [String] -> FileSystem -> FileSystem -> FileSystem
 insertToFileSystem [] _ mainDir = mainDir
@@ -22,18 +43,13 @@ changeDirectory currentDirectory targetDirectory = currentDirectory ++ [targetDi
 blankDir :: String -> FileSystem
 blankDir name = Dir name Nothing []
 
-parseLine :: (FileSystem, [String]) -> String -> (FileSystem, [String]) 
+parseLine :: State -> String -> State 
 parseLine (fileSystem, currentDirectory) command 
     | take 3 command == "dir" = (insertToFileSystem currentDirectory (blankDir (drop 4 command)) fileSystem, currentDirectory)
     | take 4 command == "$ ls" = (fileSystem, currentDirectory)
     | take 4 command == "$ cd" = (fileSystem, changeDirectory currentDirectory (drop 5 command))
     | otherwise = (insertToFileSystem currentDirectory (File ((!!1) . words $ command) (read . (!!0) . words $ command)) fileSystem, currentDirectory)
          
-type State = (FileSystem, [String])
-
-initialState :: State
-initialState = (filesystem, [])
-
 parsedFS :: IO FileSystem
 parsedFS = fst . (foldl parseLine initialState)  <$> inputs
 
@@ -66,15 +82,3 @@ getSize :: FileSystem -> Int
 getSize (File _ size) = size
 getSize (Dir _ (Just size) _) = size
 getSize dir@(Dir _ Nothing _) = calcSizeFS dir
-
-updateSize :: Int
-updateSize = 30000000
-
-totalSize :: Int
-totalSize = 70000000
-
-q1 :: IO Int
-q1 = (sumOfDirsUnderThreshold 100000) <$> finalFS
-q2 :: IO Int
-q2 = (\fs -> findSmallestLarger (updateSize - totalSize + (getSize fs)) (getSize fs) fs) <$> finalFS
-     
