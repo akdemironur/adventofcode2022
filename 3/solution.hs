@@ -7,6 +7,9 @@ q1 = (sum . (fmap totalPriority))  <$> readInputFile
 q2 :: IO Int
 q2 = sum . (fmap (priority.commonItemOf3)) . (chunksOf 3) <$> readInputFile
 
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
 readInputFile :: IO [String]
 readInputFile = do
         handle <- openFile "input.txt" ReadMode

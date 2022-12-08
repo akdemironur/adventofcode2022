@@ -7,6 +7,9 @@ q1 = (solve 1 0 0 0) <$> readInputFile
 q2 :: IO Int
 q2 =  sum.(take 3).reverse.sort.(solve2 [0]) <$> readInputFile 
 
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
 readInputFile :: IO [String]
 readInputFile = do
         handle <- openFile "input.txt" ReadMode

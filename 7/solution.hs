@@ -4,6 +4,7 @@ type State = (FileSystem, [String])
 
 q1 :: IO Int
 q1 = (sumOfDirsUnderThreshold 100000) <$> finalFS
+
 q2 :: IO Int
 q2 = (\fs -> findSmallestLarger (updateSize - totalSize + (getSize fs)) (getSize fs) fs) <$> finalFS
 

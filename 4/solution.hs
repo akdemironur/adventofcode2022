@@ -6,6 +6,9 @@ q1 = length . (filter isFullyOverlapping) <$> readInputFile
 q2 :: IO Int
 q2 = length . (filter isOverlapping) <$> readInputFile
 
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
 readInputFile :: IO [((Int, Int), (Int, Int))]
 readInputFile = do
         handle <- openFile "input.txt" ReadMode

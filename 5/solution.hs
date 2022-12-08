@@ -6,6 +6,9 @@ q1 = ((fmap ((<$>) head) . applyAll reverse . tail . dropWhile (/= "")) <$> read
 q2 :: IO String
 q2 = ((fmap ((<$>) head) . applyAll id . tail . dropWhile (/= "")) <$> readInputFile) <*> initialState
 
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
 readInputFile :: IO [String]
 readInputFile = do
         handle <- openFile "input.txt" ReadMode

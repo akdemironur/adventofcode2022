@@ -6,6 +6,9 @@ q1 = sum . fmap pointFromRound <$> readInputFile
 q2 :: IO Int
 q2 = sum . fmap (pointFromRound.convertToRound) <$> readInputFile
 
+main :: IO ()
+main = q1 >>= print >> q2 >>= print
+
 readInputFile :: IO [[String]]
 readInputFile = do
         handle <- openFile "input.txt" ReadMode
