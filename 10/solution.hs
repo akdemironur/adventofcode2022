@@ -19,5 +19,5 @@ xAfterInstr :: IO [Int]
 xAfterInstr = scanl (+) 1 <$> allInstr
 
 cycleToChar spritePos cycle
-    | abs(cycle-spritePos) <= 1 = '#'
+    | abs(cycle-spritePos) <= 1 = '▉'
     | otherwise = ' '
