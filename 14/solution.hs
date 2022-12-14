@@ -1,13 +1,21 @@
-import qualified Data.Set as S
+import Data.Set (Set)
+import Data.List (nub)
 import Data.Char (isDigit)
 import Data.Maybe (fromJust)
-import Data.List (nub)
+import qualified Data.Set as S
 
+type Coord = (Int, Int)
+
+q1 :: IO Int
 q1 = counterToAbyss Nothing 0 <$> rockSet 
+
+q2 :: IO Int
 q2 = bfs Nothing S.empty [sandSource] <$> rockSet
+
+main :: IO ()
 main = q1 >>= print >> q2 >>= print
 
-rockSet :: IO (S.Set (Int, Int))
+rockSet :: IO (Set Coord)
 rockSet = foldl addLineToSet S.empty <$> puzzleInput
 
 puzzleInput :: IO [String]
@@ -21,14 +29,14 @@ takeOnePairFromString str = ((secondNum, firstNum), remainingString)
         secondNum = (read . (takeWhile isDigit)) strAfterFirstNum
         remainingString = dropWhile (not.isDigit) $ dropWhile isDigit strAfterFirstNum
 
-addToSet :: (Int, Int) -> (Int, Int) -> S.Set (Int, Int) -> S.Set (Int, Int)
+addToSet :: Coord -> Coord -> Set Coord -> Set Coord
 addToSet a@(x1,y1) b@(x2,y2) s 
     | a == b = S.insert a s
     | x1 == x2 = addToSet (x1, if y1 > y2 then y1 - 1 else y1 + 1) b (S.insert a s)
     | y1 == y2 = addToSet (if x1 > x2 then x1 - 1 else x1 + 1, y1) b (S.insert a s)
     | otherwise = error "Wrong input"
 
-addLineToSet :: S.Set (Int, Int) -> String -> S.Set (Int, Int)
+addLineToSet :: Set Coord -> String -> Set Coord
 addLineToSet s "" = s
 addLineToSet s str = if remaining == "" then newSet else addLineToSet newSet remainingString
     where
@@ -36,7 +44,7 @@ addLineToSet s str = if remaining == "" then newSet else addLineToSet newSet rem
         (secondPair, remaining) = takeOnePairFromString remainingString
         newSet = addToSet firstPair secondPair s
 
-nextLoc :: ((Int, Int) -> S.Set (Int, Int) -> Bool) -> S.Set (Int, Int) -> (Int, Int) -> Maybe (Int, Int)
+nextLoc :: (Coord -> Set Coord -> Bool) -> Set Coord -> Coord -> Maybe Coord
 nextLoc notMember s (x,y)
     | notMember d s = Just d
     | notMember l s = Just l
@@ -47,25 +55,26 @@ nextLoc notMember s (x,y)
         l = (x+1, y-1)
         r = (x+1, y+1)
 
-sandSource :: (Int, Int)
+sandSource :: Coord
 sandSource = (0, 500)
 
-findFinalPoint :: ((Int, Int) -> S.Set (Int, Int) -> Bool) -> Int -> S.Set (Int, Int) -> (Int, Int) -> (Int, Int)
+findFinalPoint :: (Coord -> Set Coord -> Bool) -> Int -> Set Coord -> Coord -> Coord
 findFinalPoint notMember l s p@(x,y)
     | p2 == Nothing = p
     | otherwise = if fst (fromJust p2) > l then (fromJust p2) else findFinalPoint notMember l s (fromJust p2)
     where
         p2 = nextLoc notMember s p
 
+counterToAbyss :: Maybe Int -> Int -> Set Coord -> Int
 counterToAbyss l c s = if fst finalPoint > l2 then c else counterToAbyss (Just l2) (c+1) (S.insert finalPoint s)
     where
         finalPoint = findFinalPoint S.notMember l2 s sandSource
         l2 = if l == Nothing then (fst $ S.findMax s) else fromJust l
 
-floorNotMember :: Int -> (Int, Int) -> S.Set (Int, Int) -> Bool
+floorNotMember :: Int -> Coord -> Set Coord -> Bool
 floorNotMember f (x,y) s = if f+2 == x then False else S.notMember (x,y) s
 
-validNeighbors :: Int -> S.Set (Int, Int) -> (Int, Int) -> [(Int,Int)]
+validNeighbors :: Int -> Set Coord -> Coord -> [(Int,Int)]
 validNeighbors l s (x,y) = filter (\p -> floorNotMember l p s) neighbors
     where
         neighbors = [down,left,right]
@@ -73,7 +82,7 @@ validNeighbors l s (x,y) = filter (\p -> floorNotMember l p s) neighbors
         left = (x+1, y-1)
         right = (x+1, y+1)
 
-bfs :: Maybe Int -> S.Set (Int, Int) -> [(Int, Int)] -> S.Set (Int, Int) -> Int
+bfs :: Maybe Int -> Set Coord -> [Coord] -> Set Coord -> Int
 bfs l visitedPoints currentPoints rocks = if newVisitedPoints == visitedPoints then S.size visitedPoints else bfs (Just l2) newVisitedPoints newcp rocks
     where
         newcp = nub (filter (`S.notMember` newVisitedPoints) (concat $ fmap (validNeighbors l2 rocks) currentPoints))
