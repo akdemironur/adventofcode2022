@@ -62,10 +62,10 @@ checkPointValidity :: (Int, Int) -> Blizz4 -> (Int, Int) -> Bool
 checkPointValidity (limitx, limity) (left, right, up, down) p@(x,y)
     | p == (1,0) = True
     | p == (limitx-1,limity) = True
-    | x == 0 = False
-    | y == 0 = False
-    | x == limitx = False
-    | y == limity = False
+    | x <= 0 = False
+    | y <= 0 = False
+    | x >= limitx = False
+    | y >= limity = False
     | S.member p left = False
     | S.member p right = False
     | S.member p up = False
