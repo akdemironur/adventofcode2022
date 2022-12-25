@@ -95,8 +95,6 @@ wrapper1 m os@(State ox oy (a,b))
                 | otherwise = finder inc f (inc acc) k
             fun p q = m!q!p
 
-
-
 pointCalc (State x y d) = (y+1)*1000 + (x+1)*4 + pd
     where
         pd = case d of
