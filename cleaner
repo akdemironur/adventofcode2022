@@ -1,0 +1,4 @@
+rm ./*/solution
+rm ./*/solution.hi
+rm ./*/solution.o
+rm ./*/solution.prof
